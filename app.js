@@ -26,15 +26,11 @@ app.get('/api/courses/:id', (req, res) => {
 
 
 app.post('/api/courses', (req, res) => {
-    const schema = {
-        name: Joi.string().min(3).required()
-    };
+    
+    const { error } = validateCourse(req.body)
 
-    const result = Joi.validate(req.body, schema);
-    console.log(result);
-
-    if (result.error) {
-        res.status(400).send(result.error.details[0].message);
+    if (error) {
+        res.status(400).send(error.details[0].message);
         return;
     }
 
@@ -50,13 +46,9 @@ app.put('/api/courses/:id', (req, res) => {
     let course = courses.find(c => c.id === parseInt(req.params.id));
     if (!course) res.status(404).send('The course with the given Id is not present');
 
-    const schema = {
-        name: Joi.string().min(3).required()
-    };
-    const result = Joi.validate(req.body, schema);
-    console.log(result);
-    if (result.error) {
-        res.status(400).send(result.error.details[0].message);
+    const { error } = validateCourse(req.body)
+    if (error) {
+        res.status(400).send(error.details[0].message);
         return;
     }
 
@@ -68,3 +60,11 @@ const port = process.env.port || 3000
 app.listen(port, () => {
     console.log('Listening on Port '+port+'........');
 });
+
+function validateCourse(course){
+    const schema = {
+        name: Joi.string().min(3).required()
+    };
+
+    return Joi.validate(course, schema);
+}
